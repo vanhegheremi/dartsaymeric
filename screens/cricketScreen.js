@@ -1,14 +1,13 @@
 import { CRICKET_NUMBERS, HIT_DISPLAY } from "../models/cricket.js";
 import { throwDart, undo, getWinner } from "../games/cricket.js";
 
+const safeMPR = p => p.rounds === 0 ? "0.00" : (p.marks / p.rounds).toFixed(2);
+
 export function renderCricket(app, game) {
   if (game.finished) {
     renderWinner(app, game);
     return;
   }
-
-  const mpr = p =>
-    p.rounds === 0 ? "0.00" : (p.marks / p.rounds).toFixed(2);
 
   const current = game.players[game.currentPlayer];
 
@@ -34,7 +33,7 @@ export function renderCricket(app, game) {
               <div class="player-name">${p.name}</div>
               <div class="player-points">${p.points}</div>
               <div class="player-meta">
-                <div class="mpr">MPR: ${mpr(p)}</div>
+                <div class="mpr">MPR: ${safeMPR(p)}</div>
                 <div class="last-darts">${p.lastDarts.join(" | ")}</div>
               </div>
             </th>
@@ -97,16 +96,13 @@ export function renderCricket(app, game) {
     </div>
   `;
 
-  // Event Handlers
   window.hit = t => {
     throwDart(game, t);
-    // Multiplier is reset inside throwDart after processing
     renderCricket(app, game);
   };
 
   window.throwMiss = () => {
     throwDart(game, "miss");
-    // Multiplier is reset inside throwDart after processing
     renderCricket(app, game);
   };
 
@@ -131,12 +127,17 @@ function renderWinner(app, game) {
   const winners = getWinner(game);
   const isTie = winners.length > 1;
 
+  const sorted = [...game.players].sort((a, b) => {
+    if (a.points !== b.points) return a.points - b.points;
+    return (b.rounds > 0 ? b.marks / b.rounds : 0) - (a.rounds > 0 ? a.marks / a.rounds : 0);
+  });
+
   app.innerHTML = `
     <div class="winner-screen">
       <h1 class="winner-title">🏆 Game Over!</h1>
-      
-      ${isTie ? 
-        '<h2 class="tie-message">It\'s a Tie!</h2>' : 
+
+      ${isTie ?
+        '<h2 class="tie-message">It\'s a Tie!</h2>' :
         '<h2 class="winner-message">Winner!</h2>'
       }
 
@@ -151,7 +152,7 @@ function renderWinner(app, game) {
               </div>
               <div class="stat">
                 <span class="stat-label">MPR</span>
-                <span class="stat-value">${(p.marks / p.rounds).toFixed(2)}</span>
+                <span class="stat-value">${safeMPR(p)}</span>
               </div>
               <div class="stat">
                 <span class="stat-label">Rounds</span>
@@ -164,20 +165,14 @@ function renderWinner(app, game) {
 
       <h3 style="margin-top: 2rem;">All Players</h3>
       <div class="all-players-list">
-        ${game.players
-          .sort((a, b) => {
-            // Cut-throat: Lower points is better
-            if (a.points !== b.points) return a.points - b.points;
-            return (b.marks / b.rounds) - (a.marks / a.rounds);
-          })
-          .map((p, idx) => `
-            <div class="player-result">
-              <span class="rank">#${idx + 1}</span>
-              <span class="name">${p.name}</span>
-              <span class="points">${p.points} pts - </span>
-              <span class="mpr"> ${(p.marks / p.rounds).toFixed(2)} MPR</span>
-            </div>
-          `).join("")}
+        ${sorted.map((p, idx) => `
+          <div class="player-result">
+            <span class="rank">#${idx + 1}</span>
+            <span class="name">${p.name}</span>
+            <span class="points">${p.points} pts</span>
+            <span class="mpr">${safeMPR(p)} MPR</span>
+          </div>
+        `).join("")}
       </div>
 
       <button class="home-btn" onclick="window.showHome()">Back to Home</button>

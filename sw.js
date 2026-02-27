@@ -1,18 +1,23 @@
 // Version your cache for updates
-const CACHE_NAME = "dart-counter-v1.0.13";
+const CACHE_NAME = "dart-counter-v2.0.0";
 
 // Files to cache
 const urlsToCache = [
-  "/",                 // index.html
+  "/",
   "/style.css",
   "/app.js",
   "/manifest.json",
   "/screens/home.js",
   "/screens/players.js",
   "/screens/cricketScreen.js",
+  "/screens/halveItScreen.js",
+  "/screens/x01Screen.js",
   "/games/cricket.js",
+  "/games/halveIt.js",
+  "/games/x01.js",
   "/models/player.js",
   "/models/cricket.js",
+  "/models/halveIt.js",
   "/storage/storage.js"
 ];
 
