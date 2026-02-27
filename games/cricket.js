@@ -32,8 +32,10 @@ export function createCricketGame(players) {
 export function throwDart(game, target) {
   if (game.finished) return;
 
-  // Save game state for undo
-  game.history.push(structuredClone(game));
+  // Save state for undo — exclude history to avoid O(N²) growth
+  const snap = structuredClone({ ...game, history: [] });
+  game.history.push(snap);
+  if (game.history.length > 15) game.history.shift();
 
   const player = game.players[game.currentPlayer];
   let effectiveMarksThisDart = 0;
@@ -128,7 +130,10 @@ function endTurn(game) {
 
 export function undo(game) {
   if (!game.history.length) return;
-  Object.assign(game, game.history.pop());
+  const prev = game.history.pop();
+  const savedHistory = [...game.history];
+  Object.assign(game, prev);
+  game.history = savedHistory;
 }
 
 export function getWinner(game) {

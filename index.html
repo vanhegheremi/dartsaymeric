@@ -17,5 +17,29 @@
   <main id="app"></main>
 
   <script type="module" src="./app.js"></script>
+
+  <!-- Prevent ghost double-taps & stuck :active state on iOS -->
+  <script>
+    (function () {
+      var _busy = false;
+      document.addEventListener('touchstart', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn || btn.disabled) return;
+        btn.classList.add('tapped');
+        setTimeout(function () { btn.classList.remove('tapped'); }, 120);
+      }, { passive: true });
+
+      // Block re-entrant taps while JS is processing a dart throw
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        if (_busy) { e.stopImmediatePropagation(); e.preventDefault(); return; }
+        _busy = true;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { _busy = false; });
+        });
+      }, true);
+    })();
+  </script>
 </body>
 </html>

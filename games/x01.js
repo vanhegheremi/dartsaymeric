@@ -22,7 +22,9 @@ export function createX01Game(players, startScore = 501) {
 export function throwDart(game, target) {
   if (game.finished) return;
 
-  game.history.push(structuredClone(game));
+  const snap = structuredClone({ ...game, history: [] });
+  game.history.push(snap);
+  if (game.history.length > 15) game.history.shift();
 
   const player = game.players[game.currentPlayer];
   let score = 0;
@@ -95,7 +97,10 @@ function _startTurn(game) {
 
 export function undo(game) {
   if (!game.history.length) return;
-  Object.assign(game, game.history.pop());
+  const prev = game.history.pop();
+  const savedHistory = [...game.history];
+  Object.assign(game, prev);
+  game.history = savedHistory;
 }
 
 export function getWinner(game) {
