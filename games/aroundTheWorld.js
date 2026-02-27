@@ -1,12 +1,15 @@
-export const ATW_SEQUENCE = [
-  1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,"bull"
-];
+// Around the World: 1 → 20 (no bull)
+// Single = advance 1, Double = advance 2, Triple = advance 3
+// First to reach or pass 20 wins
+
+export const ATW_SEQUENCE = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+export const ATW_TOTAL = ATW_SEQUENCE.length; // 20
 
 export function createATWGame(players) {
   return {
     players: players.map(p => ({
       ...p,
-      current: 1,           // next number to hit
+      currentIdx: 0,    // index in ATW_SEQUENCE (0 = targeting 1)
       lastDarts: ["-", "-", "-"]
     })),
     currentPlayer: 0,
@@ -17,7 +20,8 @@ export function createATWGame(players) {
   };
 }
 
-export function throwDart(game, hit) {
+// result: "miss" | { value: number, mult: 1|2|3 }
+export function throwDart(game, result) {
   if (game.finished) return;
 
   const snap = structuredClone({ ...game, history: [] });
@@ -25,36 +29,30 @@ export function throwDart(game, hit) {
   if (game.history.length > 15) game.history.shift();
 
   const player = game.players[game.currentPlayer];
-  const target = player.current;
-  const isHit  = hit !== "miss";
+  const targetValue = ATW_SEQUENCE[player.currentIdx];
 
   let display;
 
-  if (isHit) {
-    const isOnTarget =
-      target === "bull"
-        ? (hit === "bull" || hit?.value === "bull")
-        : (hit === target || Number(hit?.value ?? hit) === target);
+  if (result === "miss") {
+    display = "✗";
+  } else {
+    const { value, mult } = result;
+    const isOnTarget = Number(value) === targetValue;
+    const multLabel = mult === 1 ? "" : mult === 2 ? "D" : "T";
 
     if (isOnTarget) {
-      const idx     = ATW_SEQUENCE.indexOf(target);
-      const nextIdx = idx + 1;
+      player.currentIdx = Math.min(player.currentIdx + mult, ATW_TOTAL);
+      display = `${multLabel}${value} ✓`;
 
-      if (nextIdx >= ATW_SEQUENCE.length) {
-        // Hit bull — WIN
-        display = "Bull ✓";
+      if (player.currentIdx >= ATW_TOTAL) {
+        // WIN
         player.lastDarts[game.currentDart] = display;
         game.finished = true;
         return;
       }
-
-      player.current = ATW_SEQUENCE[nextIdx];
-      display = `${target === "bull" ? "Bull" : target} ✓`;
     } else {
-      display = `${typeof hit === "object" ? hit.value : hit} ✗`;
+      display = `${multLabel}${value} ✗`;
     }
-  } else {
-    display = "✗";
   }
 
   player.lastDarts[game.currentDart] = display;
@@ -74,6 +72,10 @@ function _endTurn(game) {
   const p = game.players[game.currentPlayer];
   p.lastDarts = ["-", "-", "-"];
   game.currentDart = 0;
+}
+
+export function nextPlayer(game) {
+  _endTurn(game);
 }
 
 export function undo(game) {

@@ -333,6 +333,26 @@ input:focus {
   background: #16a34a;
 }
 
+.double-btn {
+  background: #0ea5e9;
+  color: #020617;
+  font-weight: 800;
+}
+
+.double-btn:active {
+  background: #0284c7;
+}
+
+.triple-btn {
+  background: #a855f7;
+  color: #fff;
+  font-weight: 800;
+}
+
+.triple-btn:active {
+  background: #9333ea;
+}
+
 /* ===========================
    Dart Status
    =========================== */
