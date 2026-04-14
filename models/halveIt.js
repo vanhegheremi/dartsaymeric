@@ -1,16 +1,18 @@
 // Round sequence per KOTO board specification
 export const HALVE_IT_ROUNDS = [
   { label: "Target 20",      type: "number",      target: 20          },
-  { label: "Target 16",      type: "number",      target: 16          },
-  { label: "Rouge",          type: "color",       color: "red"        },
-  { label: "Target 17",      type: "number",      target: 17          },
+  { label: "Target 19",      type: "number",      target: 19          },
   { label: "Target 18",      type: "number",      target: 18          },
+  { label: "Target 17",      type: "number",      target: 17          },
+  { label: "Target 16",      type: "number",      target: 16          },
+  { label: "Target 15",      type: "number",      target: 15          },
+
+  { label: "Rouge",          type: "color",       color: "red"        },
   { label: "3 Couleurs",     type: "threeColors"                      },
   { label: "Vert",           type: "color",       color: "green"      },
-  { label: "Target 19",      type: "number",      target: 19          },
-  { label: "Target 20",      type: "number",      target: 20          },
   { label: "Score Exact",    type: "exact"                            },
   { label: "Même Couleur",   type: "sameColor"                        },
+
   { label: "Bull",           type: "bull"                             }
 ];
 
